@@ -1,3 +1,6 @@
+## Author: Claudia Flores-Saviaga
+## GitHub: @saviaga
+
 import wikipediaapi
 import requests
 from typing import List, Dict, Tuple

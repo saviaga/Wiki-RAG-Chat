@@ -1,3 +1,6 @@
+## Author: Claudia Flores-Saviaga
+## GitHub: @saviaga
+
 from pathlib import Path
 from pydantic import BaseModel
 import os

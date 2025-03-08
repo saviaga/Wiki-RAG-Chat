@@ -14,6 +14,9 @@ from dotenv import load_dotenv
 from pathlib import Path
 import time
 
+## Author: Claudia Flores-Saviaga
+## GitHub: @saviaga
+
 # Set up base directory and load environment variables
 BASE_DIR = Path(__file__).parent
 load_dotenv(BASE_DIR.parent / ".env")

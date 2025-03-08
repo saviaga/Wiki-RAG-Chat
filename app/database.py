@@ -1,3 +1,6 @@
+## Author: Claudia Flores-Saviaga
+## GitHub: @saviaga
+
 from typing import List, Dict
 from langchain.vectorstores import FAISS
 from langchain.embeddings import HuggingFaceEmbeddings

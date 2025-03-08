@@ -1,3 +1,6 @@
+## Author: Claudia Flores-Saviaga
+## GitHub: @saviaga
+
 from typing import List
 from ctransformers import AutoModelForCausalLM
 from .config import settings
