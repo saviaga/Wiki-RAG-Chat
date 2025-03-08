@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RAG Chat Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .chat-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+        }
+        .assistant-message {
+            background-color: #f5f5f5;
+            margin-right: 20%;
+        }
+        .system-message {
+            background-color: #fff3e0;
+            margin: 5px 10%;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        .sources {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1976d2;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .processing {
+            color: #666;
+            font-style: italic;
+        }
+        .processing-time {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>RAG Chat Interface</h1>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Type your question here...">
+            <button onclick="sendMessage()" id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function addSystemMessage(message) {
+            const messagesDiv = document.getElementById('chat-messages');
+            messagesDiv.innerHTML += `
+                <div class="message system-message">
+                    ${message}
+                </div>
+            `;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const button = document.getElementById('send-button');
+            const messagesDiv = document.getElementById('chat-messages');
+            
+            const question = input.value.trim();
+            if (!question) return;
+
+            // Disable input and button while processing
+            input.disabled = true;
+            button.disabled = true;
+
+            // Add user message
+            messagesDiv.innerHTML += `
+                <div class="message user-message">
+                    <strong>You:</strong> ${question}
+                </div>
+            `;
+
+            // Clear input
+            input.value = '';
+
+            try {
+                const startTime = Date.now();
+                await addSystemMessage("🔍 Processing your question...");
+                
+                console.log('Sending request:', {
+                    query: question,
+                    k: 4
+                });
+                
+                await addSystemMessage("🌐 Searching Wikipedia for relevant articles...");
+                await addSystemMessage("📚 Analyzing and processing found articles...");
+                
+                const response = await fetch('http://localhost:8001/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: question,
+                        k: 4
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.log('Error data:', errorData);
+                    const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                    throw new Error(`Server error (${totalTime}s): ${response.status} - ${JSON.stringify(errorData)}`);
+                }
+
+                await addSystemMessage("💭 Generating response...");
+
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                // Add assistant message with sources
+                let sourcesHtml = '';
+                if (data.sources && data.sources.length > 0) {
+                    sourcesHtml = '<div class="sources">Sources:<br>' +
+                        data.sources.map(s => `<a href="${s.url}" target="_blank">${s.title}</a>`).join('<br>') +
+                        '</div>';
+                }
+
+                // Add processing time
+                const processingTime = data.processing_time ? 
+                    `<div class="processing-time">Processing time: ${data.processing_time.toFixed(2)} seconds</div>` : '';
+
+                messagesDiv.innerHTML += `
+                    <div class="message assistant-message">
+                        <strong>Assistant:</strong> ${data.answer}
+                        ${sourcesHtml}
+                        ${processingTime}
+                    </div>
+                `;
+
+                await addSystemMessage("✅ Response complete");
+            } catch (error) {
+                console.error('Error details:', error);
+                messagesDiv.innerHTML += `
+                    <div class="message assistant-message">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+                await addSystemMessage("❌ An error occurred while processing your request");
+            } finally {
+                // Re-enable input and button
+                input.disabled = false;
+                button.disabled = false;
+                input.focus();
+            }
+
+            // Scroll to bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Allow sending message with Enter key
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.target.disabled) {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html> 
