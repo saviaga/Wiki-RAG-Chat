@@ -1,4 +1,4 @@
-# RAG Chat Interface
+#Wiki RAG Chat Interface
 
 A Retrieval-Augmented Generation (RAG) system that uses Wikipedia articles to provide informed responses to user queries. The system features a clean web interface and uses the Llama-2 model for generating responses.
 
@@ -149,7 +149,7 @@ Copyright (c) 2024 Claudia Flores-Saviaga
 
 ## Contributing
 
-We love your input! We want to make contributing to Wiki-RAG-Chat as easy and transparent as possible, whether it's:
+I'd love your input! IWe want to make contributing to Wiki-RAG-Chat as easy and transparent as possible, whether it's:
 
 - Reporting a bug
 - Discussing the current state of the code
@@ -159,7 +159,7 @@ We love your input! We want to make contributing to Wiki-RAG-Chat as easy and tr
 
 ### Development Process
 
-We use GitHub to host code, to track issues and feature requests, as well as accept pull requests.
+I use GitHub to host code, to track issues and feature requests, as well as accept pull requests.
 
 1. Fork the repo and create your branch from `main`
 2. If you've added code that should be tested, add tests
