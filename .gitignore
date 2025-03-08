@@ -74,4 +74,8 @@ site/
 
 # Local development
 *.local
-.local/ 
+.local/
+
+# SSH Keys
+saviaga.txt
+saviaga.txt.pub 
